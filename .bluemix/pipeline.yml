@@ -28,7 +28,7 @@ stages:
     script: |-
       #!/bin/bash
       echo appName "${CF_APP}"
-      serviceId=`echo ${CF_APP} | awk '{print substr($0, 12)}'`
+      serviceId=`echo ${CF_APP} | tail -c 37`
       echo serviceId "${serviceId}"
       serviceJson=`cf curl /v2/service_instances/${serviceId}`
       echo serviceJson "${serviceJson}"
