@@ -28,6 +28,9 @@ stages:
     script: |-
       #!/bin/bash
       echo appName "${CF_APP}"
+      echo organization "${CF_ORGANIZATION}"
+      echo space "${CF_SPACE}"
+      echo url "${CF_TARGET_URL}"
       serviceId=`echo ${CF_APP} | tail -c 37`
       echo serviceId "${serviceId}"
       serviceJson=`cf curl /v2/service_instances/${serviceId}`
@@ -40,8 +43,19 @@ stages:
        echo serviceName "${serviceName}"
        if [[ ! -z $serviceName ]]
        then
-        sed -i '$ a \  services:' manifest.yml
-        sed -i "$ a \  - ${serviceName}" manifest.yml
+        serviceInfo=`cf service "${serviceName}" || true`
+        echo serviceInfo "${serviceInfo}"
+        serviceLabel=`echo ${serviceInfo} | awk '{for (I=1;I<=NF;I++) if ($I == "Service:") {print $(I+1)};}'` 
+        echo serviceLabel "${serviceLabel}"
+        if [[ ! -z $serviceLabel ]]
+        then
+         sed -i '$ a \  services:' manifest.yml
+         sed -i "$ a \  - ${serviceName}" manifest.yml
+         sed -i '$ a \  env:' manifest.yml
+         sed -i "$ a \    PA_SERVICE_LABEL: ${serviceLabel}" manifest.yml
+        else
+         echo "The problem occured when retrieving the serviceLabel. The service will not be bind to the app."
+        fi 
        else
          echo "The problem occured when retrieving the serviceName. The service will not be bind to the app."
        fi 
