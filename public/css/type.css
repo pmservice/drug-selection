@@ -11,16 +11,14 @@ body {
 	background: #FFFFFF; /* white */
 	color: #000; /* black */
 	font: normal 100% Helvetica Neue, Helvetica, Arial, sans-serif;
-	text-align: left; 
+	text-align: left;
 	margin-left:2em;
 	padding:2em;
-	background-color: #66CCCC;
 }
 
 .section {
 	margin-left:2em;
 	padding:2em;
-	background-color: #66CCCC;
 }
 
 a {
@@ -69,26 +67,26 @@ h3 {
 	color: #4C4D53; /* cool gray 9 */
 }
 
-table { 
-  width: 100%; 
-  border-collapse: collapse; 
+table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 1em;
 }
 
-tr:nth-of-type(odd) { 
-  background: #eee; 
+tr:nth-of-type(odd) {
+  //background: #eee;
 }
 
-th { 
-  background-color: #4C4D53; /* cool gray 9 */
-  color: white; 
-  font-weight: bold; 
+th {
+  //background-color: #4C4D53; /* cool gray 9 */
+  //color: white;
+  font-weight: bold;
 }
 
-td, th { 
-  padding: 6px; 
-  border: 1px solid #ccc; 
-  text-align: left; 
+td, th {
+  padding: 6px;
+  border: 1px solid #ccc;
+  text-align: left;
 }
 
 .right {
@@ -113,7 +111,8 @@ td, th {
 }
 
 .dlg {
-	background-color: #FFFFFF; /* white */
+  background-color: #eff2f5;
+	color: black;
 	margin: 0.5em;
 }
 
@@ -132,7 +131,7 @@ td, th {
 }
 
 .dlg .body .section {
-	padding: 1em; 
+	padding: 1em;
 	margin-left: 4em;
 }
 
