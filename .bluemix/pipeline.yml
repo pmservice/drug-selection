@@ -54,13 +54,13 @@ stages:
          sed -i '$ a \  env:' manifest.yml
          sed -i "$ a \    PA_SERVICE_LABEL: ${serviceLabel}" manifest.yml
         else
-         echo "The problem occured when retrieving the serviceLabel. The service will not be bind to the app."
+         echo "The problem occured when retrieving the serviceLabel. The service will not be bound to the app."
         fi 
        else
-         echo "The problem occured when retrieving the serviceName. The service will not be bind to the app."
+         echo "The problem occured when retrieving the serviceName. The service will not be bound to the app."
        fi 
       else
-        echo "The problem occured when retrieving the serviceName. The service will not be bind to the app."
+        echo "The problem occured when retrieving the serviceName. The service will not be bound to the app."
       fi
       echo manifest.yml
       cat manifest.yml
