@@ -47,7 +47,8 @@ var env = { baseURL: defaultBaseURL, accessKey: defaultAccessKey };
 //  }
 //}
 var services = JSON.parse(process.env.VCAP_SERVICES || "{}");
-var service = (services['pm-20'] || "{}");
+var pmServiceName = process.env.PA_SERVICE_LABEL ? process.env.PA_SERVICE_LABEL : 'pm-20';
+var service = (services[pmServiceName] || "{}");
 var credentials = service[0].credentials;
 if (credentials != null) {
 		env.baseURL = credentials.url;
@@ -95,12 +96,12 @@ console.log(' ');
         message: msg
   	}));
 	}
-	
+
 	process.on('uncaughtException', function (err) {
     console.log(err);
-	}); 
+	});
 });
-        
+
 // Register Service routes and SPA route ---------------
 
 // all of our service routes will be prefixed with rootPath
