@@ -7,9 +7,8 @@
 
 #### For reference please see screenshot below.
 
-![alt text](https://cloud.githubusercontent.com/assets/23261116/20431592/26f8e448-ad9b-11e6-9a2a-191fb913630b.jpg "Dashboard")
-
+![alt text](https://github.com/pmservice/drug-selection/blob/master/public/img/drug_dashboard.jpg "Dashboard")
 
 #### After successful models upload deployed application should provide scoring capability as shown below.
 
-![alt text](https://cloud.githubusercontent.com/assets/23261116/20431696/befa68f2-ad9b-11e6-884c-185abe6feb09.jpg  "Application")
+![alt text](https://github.com/pmservice/drug-selection/blob/master/public/img/heart_app.jpg  "Application")
