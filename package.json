@@ -11,7 +11,7 @@
     "body-parser": "~1.0.1"
   },
 	"engines": {
-		"node": "0.10.26"
+		"node": "6.9.x"
 	},
 	"repository": {}
 }

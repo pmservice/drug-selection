@@ -24,7 +24,23 @@ var defaultAccessKey = '<from your service instance on Bluemix>';
 // VCAP_SERVICES contains all the credentials of services bound to
 // this application. For details of its content, please refer to
 // the document or sample of each service.
-var env = { baseURL: defaultBaseURL, accessKey: defaultAccessKey };
+var serviceAccess = (url, accessKey) => {
+	let _url = url;
+	let _accessKey = accessKey;
+	return {
+		getBaseUrl: () => {
+			let v1Url = '/pm/v1';
+			let result = _url.includes(v1Url) ? _url : _url + v1Url
+			if (result.endsWith('/')) {
+				result += '/';
+			}
+			return result;
+		},
+		getAccessKey: () => _accessKey,
+		toString: () => `url: ${_url} access_key: ${_accessKey}`
+	}
+}
+var serviceEnv = serviceAccess(defaultBaseURL, defaultAccessKey);
 
 //{
 //  "VCAP_SERVICES": {
@@ -51,8 +67,7 @@ var pmServiceName = process.env.PA_SERVICE_LABEL ? process.env.PA_SERVICE_LABEL 
 var service = (services[pmServiceName] || "{}");
 var credentials = service[0].credentials;
 if (credentials != null) {
-		env.baseURL = credentials.url;
-		env.accessKey = credentials.access_key;
+	serviceEnv = serviceAccess(credentials.url, credentials.access_key);
 }
 
 var rootPath = '/score';
@@ -68,12 +83,12 @@ router.use(function(req, res, next) {
 
 // env request
 router.get('/', function(req, res) {
-	res.json(env);
+	res.send(serviceEnv.toString());
 });
 
 // score request
 router.post('/', function(req, res) {
-	var scoreURI = env.baseURL + '/score/' + req.body.context + '?accesskey=' + env.accessKey;
+	var scoreURI = serviceEnv.getBaseUrl() + '/score/' + req.body.context + '?accesskey=' + serviceEnv.getAccessKey();
 console.log('=== SCORE ===');
 console.log('  URI  : ' + scoreURI);
 console.log('  Input: ' + JSON.stringify(req.body.input));
