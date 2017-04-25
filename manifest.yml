@@ -1,3 +1,5 @@
 applications:
 - memory: 256M
-  name: drug-selection
+  name: mydrugselection
+  services:
+  - machine-learning-20161215
