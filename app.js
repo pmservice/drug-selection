@@ -8,12 +8,51 @@ var path			 	= require('path');
 var bodyParser 	= require('body-parser');
 var express    	= require('express');
 var request 		= require('request');
+var cfenv       = require('cfenv');
 
 var app        	= express(); // define our app using express
 
 // configure app to use bodyParser()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// -----------------------
+// cfenv provides access to your Cloud Foundry environment
+var vcapLocal = null
+try {
+  // load local VCAP configuration
+  vcapLocal = require("./vcap-local.json");
+  console.log("Loaded local VCAP", vcapLocal);
+} catch (e) {
+  console.error(e);
+}
+
+// This option property is ignored if not running locally.
+var options = vcapLocal ? { vcap: vcapLocal } : {}
+var appEnv = cfenv.getAppEnv(options);
+
+console.log('Running locally: ' + appEnv.isLocal);
+console.log('Application Name: ' + appEnv.name);
+
+// Configure Cloudant database service
+// Return all services, in an object keyed by service name.
+var services = appEnv.getServices();
+var credentials;
+var count = 0;
+for (var serviceName in services) {
+  if (services.hasOwnProperty(serviceName)) {
+    count++;
+    var service = services[serviceName];
+    console.log('Service name=' + service.name + ', Label=' + service.label);
+    if (service.label == "pm-20") {
+      credentials =  service.credentials;
+    }
+  }
+}
+if (!count) {
+  console.log('No services are bound to this app.\n');
+}
+// -----------------------
 
 var port = (process.env.VCAP_APP_PORT || process.env.PORT || 3000);
 var host = (process.env.VCAP_APP_HOST || process.env.HOST || 'localhost');
@@ -62,10 +101,10 @@ var serviceEnv = serviceAccess(defaultBaseURL, defaultAccessKey);
 //    ]
 //  }
 //}
-var services = JSON.parse(process.env.VCAP_SERVICES || "{}");
-var pmServiceName = process.env.PA_SERVICE_LABEL ? process.env.PA_SERVICE_LABEL : 'pm-20';
-var service = (services[pmServiceName] || "{}");
-var credentials = service[0].credentials;
+// var services = JSON.parse(process.env.VCAP_SERVICES || "{}");
+// var pmServiceName = process.env.PA_SERVICE_LABEL ? process.env.PA_SERVICE_LABEL : 'pm-20';
+// var service = (services[pmServiceName] || "{}");
+// var credentials = service[0].credentials;
 if (credentials != null) {
 	serviceEnv = serviceAccess(credentials.url, credentials.access_key);
 }
