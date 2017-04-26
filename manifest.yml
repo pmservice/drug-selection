@@ -1,4 +1,4 @@
 applications:
 - memory: 256M
-  name: mydrugselection
+  name: drug-selection
   buildpack: sdk-for-nodejs

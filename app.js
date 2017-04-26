@@ -2,70 +2,52 @@
 // BASE SETUP
 // =============================================================================
 
-var path			 	= require('http');
-var path			 	= require('https');
-var path			 	= require('path');
-var bodyParser 	= require('body-parser');
-var express    	= require('express');
-var request 		= require('request');
-var cfenv       = require('cfenv');
+var path = require('http');
+var path = require('https');
+var path = require('path');
+var bodyParser = require('body-parser');
+var express = require('express');
+var request = require('request');
+var cfenv = require('cfenv');
 
-var app        	= express(); // define our app using express
+var app = express(); // define our app using express
 
 // configure app to use bodyParser()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// -----------------------
-// cfenv provides access to your Cloud Foundry environment
-var vcapLocal = null
-try {
-  // load local VCAP configuration
-  vcapLocal = require("./vcap-local.json");
-  console.log("Loaded local VCAP", vcapLocal);
-} catch (e) {
-  console.error(e);
-}
-
-// This option property is ignored if not running locally.
-var options = vcapLocal ? { vcap: vcapLocal } : {}
-var appEnv = cfenv.getAppEnv(options);
-
-console.log('Running locally: ' + appEnv.isLocal);
-console.log('Application Name: ' + appEnv.name);
-
-// Configure Cloudant database service
-// Return all services, in an object keyed by service name.
-var services = appEnv.getServices();
-var credentials;
-var count = 0;
-for (var serviceName in services) {
-  if (services.hasOwnProperty(serviceName)) {
-    count++;
-    var service = services[serviceName];
-    console.log('Service name=' + service.name + ', Label=' + service.label);
-    if (service.label == "pm-20") {
-      credentials =  service.credentials;
-    }
-  }
-}
-if (!count) {
-  console.log('No services are bound to this app.\n');
-}
-// -----------------------
-
 var port = (process.env.VCAP_APP_PORT || process.env.PORT || 3000);
 var host = (process.env.VCAP_APP_HOST || process.env.HOST || 'localhost');
 
-var defaultBaseURL = '<from your service instance on Bluemix>';
-var defaultAccessKey = '<from your service instance on Bluemix>';
+// -----------------------
+var localAppOptions = {}
+try {
+  // load local VCAP configuration
+  localEnv = require("./config/local.json");
+	localAppOptions.vcap = {
+      services: localEnv
+    };
+  console.log("Loaded local VCAP");
+} catch (e) {
+  console.error(e);
+}
+// cfenv provides access to your Cloud Foundry environment
+const appEnv = cfenv.getAppEnv(localAppOptions);
+console.log(`Application name: ${appEnv.name}, running locally: ${appEnv.isLocal}`);
 
-// VCAP_SERVICES contains all the credentials of services bound to
-// this application. For details of its content, please refer to
-// the document or sample of each service.
-var serviceAccess = (url, accessKey) => {
-	let _url = url;
-	let _accessKey = accessKey;
+const pmServiceName = process.env.PA_SERVICE_LABEL ? process.env.PA_SERVICE_LABEL : 'pm-20';
+
+var serviceAccess = (allServices, serviceName) => {
+	let _url = 'NO_VCAP_DATA';
+	let _accessKey = 'NO_VCAP_DATA';
+	if (allServices && allServices[serviceName] && allServices[serviceName][0]) {
+		let {credentials} = allServices[serviceName][0];
+		_url = credentials.url;
+		_accessKey = credentials.access_key;
+	} else {
+		console.log('No services are bound to this app.\n');
+	}
+
 	return {
 		getBaseUrl: () => {
 			let v1Url = '/pm/v1';
@@ -79,35 +61,9 @@ var serviceAccess = (url, accessKey) => {
 		toString: () => `url: ${_url} access_key: ${_accessKey}`
 	}
 }
-var serviceEnv = serviceAccess(defaultBaseURL, defaultAccessKey);
 
-//{
-//  "VCAP_SERVICES": {
-//    "pm-20": [
-//      {
-//        "credentials": {
-//          "access_key": "access key",
-//          "url": "scoring server url"
-//        },
-//        "label": "pm-20",
-//        "name": "Predictive Modeling-ct",
-//        "plan": "free",
-//        "tags": [
-//          "business_analytics",
-//          "ibm_created",
-//          "ibm_beta"
-//        ]
-//      }
-//    ]
-//  }
-//}
-// var services = JSON.parse(process.env.VCAP_SERVICES || "{}");
-// var pmServiceName = process.env.PA_SERVICE_LABEL ? process.env.PA_SERVICE_LABEL : 'pm-20';
-// var service = (services[pmServiceName] || "{}");
-// var credentials = service[0].credentials;
-if (credentials != null) {
-	serviceEnv = serviceAccess(credentials.url, credentials.access_key);
-}
+let serviceEnv = serviceAccess(appEnv.services, pmServiceName);
+// -----------------------
 
 var rootPath = '/score';
 
